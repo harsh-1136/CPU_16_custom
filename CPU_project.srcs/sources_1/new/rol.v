@@ -1,11 +1,12 @@
 `timescale 1ns / 1ps
-module left_shift_16(
-    input  [15:0] a,
-    input  [3:0]  s,
+
+module rol(
+    input [15:0] a,
+    input [3:0] s,
     output [15:0] out
     );
-    wire [30:0] a_ext;
-    assign a_ext = {a, 15'b0};
+   wire [30:0] a_ext;
+    assign a_ext = {a,a[14:0]};
 
     genvar i, k;
     generate
