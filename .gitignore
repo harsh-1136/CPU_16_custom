@@ -8,6 +8,7 @@
 *.jou
 *.log
 *.str
+*.srcs
 *.backup.jou
 *.backup.log
 webtalk*.log
