@@ -18,4 +18,4 @@ vivado_pid*.debug
 *.wdb
 *.pb
 usage_statistics_webtalk.html
-usage_statistics_webtalk.xml
+usage_statistics_webtalk.xml*.srcs
