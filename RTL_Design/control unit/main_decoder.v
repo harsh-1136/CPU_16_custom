@@ -29,25 +29,36 @@ module main_decoder(
               
             end
 
-            4'b0001: begin // MOV group -- fill in sub-modes yourself
+            4'b0001: begin // [MODIFIED] MOV group with support for all modes from ISA
                 reg_write = 1'b1;
                 case(mode_bits)
-                    4'b0000: begin // MOV R1,R2
-                        alu_src = 1'b0;
+                    4'b0000: begin // MOV Rd, Rs (Register-to-Register)
+                        alu_src   = 1'b0;
+                        alu_op    = 4'd15; // PASS B through ALU (outs = b = dataout_rb)
+                        reg_write = 1'b1;
                     end
-                    4'b0100: begin // MOV [R1],R2
+                    4'b0001, 4'b0100: begin // MOV [Ra], Rb (Store to memory: Mode 1 or Mode 4)
                         mem_write = 1'b1;
                         reg_write = 1'b0;
                     end
-                    4'b1000: begin // MOV R1,[R2]
+                    4'b0010, 4'b1000: begin // MOV Rd, [Rb] (Load from memory: Mode 2 or Mode 8)
                         mem_read   = 1'b1;
                         mem_to_reg = 1'b1;
+                        reg_write  = 1'b1;
                     end
-                    mode_bits[3]&mode_bits[2]: begin // MOV R1,#imm
-                        alu_src = 1'b1;
+                    4'b0011: begin // MOV Rd, #imm (Immediate-to-Register: Mode 3)
+                        alu_src   = 1'b1;  // Select immediate
+                        alu_op    = 4'd15; // PASS B through ALU (outs = b = imm)
+                        reg_write = 1'b1;
                     end
-                    
-                    default: ;
+                    4'b0101: begin // MVN Rd, Rs (Move NOT Register)
+                        alu_src   = 1'b0;
+                        alu_op    = 4'd13; // NOT operation
+                        reg_write = 1'b1;
+                    end
+                    default: begin
+                        reg_write  = 1'b0;
+                    end
                 endcase
             end
 
@@ -55,6 +66,7 @@ module main_decoder(
                 branch = 1'b1;
                 case(mode_bits)
                     // ... (keep branch logic the same) ...
+                   
                     4'b1110: begin // CMPS
                         branch = 1'b0;
                         alu_op = 4'd10; // ALIGNED TO ALU
@@ -83,7 +95,30 @@ module main_decoder(
                 endcase
             end
 
-            // ALU opcodes 0 and 1 (ADD/SUB) were already aligned.
+            // [MODIFIED] Added missing arithmetic opcodes (ADD, ADDI, SUB, SBI)
+            4'b0100: begin // ADD Rd, Ra, Rb
+                reg_write = 1'b1;
+                alu_src   = 1'b0;
+                alu_op    = 4'd0;
+            end
+
+            4'b0101: begin // ADDI Rd, Ra, #imm
+                reg_write = 1'b1;
+                alu_src   = 1'b1;
+                alu_op    = 4'd0;
+            end
+
+            4'b0110: begin // SUB Rd, Ra, Rb
+                reg_write = 1'b1;
+                alu_src   = 1'b0;
+                alu_op    = 4'd1;
+            end
+
+            4'b0111: begin // SBI Rd, Ra, #imm (SUBI)
+                reg_write = 1'b1;
+                alu_src   = 1'b1;
+                alu_op    = 4'd1;
+            end
 
             4'b1000: begin // AND
                 reg_write = 1'b1;
