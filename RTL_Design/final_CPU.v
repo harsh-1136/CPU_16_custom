@@ -123,7 +123,7 @@ module final_CPU(
     reg zero_r, carry_r, sign_r, overflow_r, eq_r, gt_r, lt_r;
 
     wire flag_write = (alu_op == 4'b0000) || (alu_op == 4'b0001) ||   // ADD, SUB
-                       (alu_op == 4'b1101) || (alu_op == 4'b1110);    // CMP, CMPS
+                       (alu_op == 4'd9) || (alu_op == 4'd10);    // CMP, CMPS
 
     always@(posedge clk or posedge reset) begin
         if (reset) begin
