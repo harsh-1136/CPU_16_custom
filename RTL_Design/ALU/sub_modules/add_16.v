@@ -24,3 +24,15 @@ module add_16(
     endgenerate
      assign cout = carry[16];
 endmodule
+
+// [ADDED] 1-bit Full Adder module used by add_16 and other arithmetic units
+module FA(
+    input a,
+    input b,
+    input cin,
+    output sum,
+    output cout
+);
+    assign sum  = a ^ b ^ cin;
+    assign cout = (a & b) | (b & cin) | (a & cin);
+endmodule
